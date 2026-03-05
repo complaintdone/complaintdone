@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { CheckCircle, Mail } from "lucide-react";
+import { CheckCircle, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Success = () => {
@@ -25,10 +25,25 @@ const Success = () => {
             <CheckCircle className="h-10 w-10 text-accent" />
           </div>
           <h1 className="text-3xl font-heading font-bold text-foreground mb-3">Payment successful!</h1>
-          <p className="text-lg text-muted-foreground mb-2">Your ComplaintDone letter is on its way.</p>
+          <p className="text-lg text-muted-foreground mb-4">Your ComplaintDone letter is on its way.</p>
+
+          {/* Generation progress */}
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            >
+              <Loader2 className="h-5 w-5 text-accent" />
+            </motion.div>
+            <span className="text-sm font-medium text-foreground">Generating your letter…</span>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Your letter is being generated now — check your inbox within 60 seconds.
+          </p>
+
           <div className="flex items-center justify-center gap-2 text-muted-foreground mb-8">
             <Mail className="h-4 w-4" />
-            <span className="text-sm">Check your inbox within 60 seconds</span>
+            <span className="text-sm">We'll email it to you shortly</span>
           </div>
           <Link to="/">
             <Button variant="outline" size="lg">Back to Home</Button>

@@ -22,7 +22,11 @@ const Terms = () => (
         </section>
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Disclaimer</h2>
-          <p><strong>This is AI-generated content for informational purposes only.</strong> ComplaintDone does not provide legal advice, and we do not guarantee any specific outcome from using our letters. The escalation contacts provided are suggestions based on publicly available information and may not be current.</p>
+          <p><strong>AI-generated content is for informational purposes only and does not constitute legal advice.</strong> ComplaintDone is not a law firm. We do not guarantee any specific outcome from using our letters. The escalation contacts provided are suggestions based on publicly available information and may not be current.</p>
+        </section>
+        <section>
+          <h2 className="text-xl font-heading font-semibold text-foreground">AI-Generated Content</h2>
+          <p>Letters are generated using artificial intelligence and incorporate references to relevant UK regulations (such as the Consumer Rights Act 2015, Ofcom guidelines, FCA regulations, and ICO guidance) where applicable. These references are provided for informational purposes and should not be relied upon as legal counsel.</p>
         </section>
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Payments & Refunds</h2>
@@ -30,7 +34,7 @@ const Terms = () => (
         </section>
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Data & Privacy</h2>
-          <p>We store your submission details (email, company name, complaint description) to deliver the service. We do not sell your data. Complaint details are processed by AI and are not reviewed by humans unless required for support.</p>
+          <p>Data is processed in accordance with UK GDPR. We store your submission details (email, company name, complaint description) solely to deliver the service. <strong>Submissions are deleted after 30 days.</strong> We do not sell your data. Complaint details are processed by AI and are not reviewed by humans unless required for support.</p>
         </section>
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Contact</h2>

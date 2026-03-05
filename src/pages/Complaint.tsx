@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -6,14 +6,60 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
+const COMPANIES = [
+  "British Gas", "Sky", "BT", "Vodafone", "Virgin Media", "EDF Energy",
+  "Amazon", "Royal Mail", "Currys", "Evri", "DPD", "Barclays", "HSBC",
+  "Lloyds", "NatWest", "Santander", "British Airways", "Ryanair", "Easyjet",
+  "O2", "Three", "TalkTalk", "Octopus Energy", "E.ON", "Thames Water", "Other",
+];
+
+const MAX_CHARS = 2000;
+
 const Complaint = () => {
-  const [form, setForm] = useState({ name: "", email: "", company: "", description: "" });
+  const [form, setForm] = useState({ name: "", email: "", company: "", description: "", tone: "firm" });
   const [loading, setLoading] = useState(false);
+  const [companySuggestions, setCompanySuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const companyRef = useRef<HTMLDivElement>(null);
+
+  const charCount = form.description.length;
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (companyRef.current && !companyRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "description" && value.length > MAX_CHARS) return;
+    setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "company") {
+      const filtered = value.length > 0
+        ? COMPANIES.filter((c) => c.toLowerCase().includes(value.toLowerCase()))
+        : [];
+      setCompanySuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    }
+  };
+
+  const selectCompany = (company: string) => {
+    setForm((prev) => ({ ...prev, company }));
+    setShowSuggestions(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,22 +102,76 @@ const Complaint = () => {
               <Label htmlFor="email">Email address *</Label>
               <Input id="email" name="email" type="email" placeholder="jane@example.com" value={form.email} onChange={handleChange} required className="mt-1.5" />
             </div>
-            <div>
+
+            {/* Company with auto-suggest */}
+            <div ref={companyRef} className="relative">
               <Label htmlFor="company">Company you're complaining about *</Label>
-              <Input id="company" name="company" placeholder="e.g. British Gas, Sky, Vodafone" value={form.company} onChange={handleChange} required className="mt-1.5" />
+              <Input
+                id="company"
+                name="company"
+                placeholder="Start typing — e.g. British Gas, Sky, Vodafone"
+                value={form.company}
+                onChange={handleChange}
+                onFocus={() => {
+                  if (form.company.length > 0) {
+                    const filtered = COMPANIES.filter((c) => c.toLowerCase().includes(form.company.toLowerCase()));
+                    setCompanySuggestions(filtered);
+                    setShowSuggestions(filtered.length > 0);
+                  }
+                }}
+                required
+                autoComplete="off"
+                className="mt-1.5"
+              />
+              {showSuggestions && companySuggestions.length > 0 && (
+                <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+                  {companySuggestions.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-accent/10 text-popover-foreground"
+                      onClick={() => selectCompany(c)}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Tone selector */}
+            <div>
+              <Label>Tone *</Label>
+              <Select value={form.tone} onValueChange={(val) => setForm((prev) => ({ ...prev, tone: val }))}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select tone" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="polite">Polite — Friendly but clear</SelectItem>
+                  <SelectItem value="firm">Firm — Professional and direct</SelectItem>
+                  <SelectItem value="assertive">Assertive — Strong and demanding</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Description with character counter */}
             <div>
               <Label htmlFor="description">What happened? *</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Describe the issue in detail — what happened, when, and what resolution you're looking for..."
+                placeholder="E.g., On 1st March 2025, I purchased a washing machine from Currys but it arrived damaged. Despite three calls to customer service and two emails, I have received no resolution. I am seeking a full refund or replacement."
                 value={form.description}
                 onChange={handleChange}
                 required
                 rows={6}
                 className="mt-1.5 resize-none"
               />
+              <div className="flex justify-end mt-1.5">
+                <span className={`text-xs ${charCount > MAX_CHARS * 0.9 ? "text-destructive" : "text-muted-foreground"}`}>
+                  {charCount}/{MAX_CHARS}
+                </span>
+              </div>
             </div>
 
             <Button type="submit" variant="cta" size="lg" className="w-full" disabled={loading}>
