@@ -12,9 +12,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
+    
+    if (!stripeKey) {
+      return new Response(JSON.stringify({ error: "Stripe key not found" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
     const { email, name, company, description, tone } = await req.json();
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
