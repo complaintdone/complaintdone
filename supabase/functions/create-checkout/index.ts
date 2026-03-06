@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
 
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")?.trim();
-    
+
     if (!stripeKey) {
       return new Response(JSON.stringify({ error: "Stripe key not found" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -29,15 +29,10 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: [
-        {
-          price: "price_1T7w2IPt9nNFZaKHsb5S6GUv",
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: "price_1T7w2IPt9nNFZaKHsb5S6GUv", quantity: 1 }],
       mode: "payment",
       success_url: `https://www.complaintdone.com/success?session_id={CHECKOUT_SESSION_ID}`,
-cancel_url: `https://www.complaintdone.com/complaint`,
+      cancel_url: `https://www.complaintdone.com/complaint`,
       customer_email: email,
       metadata: { name, company, description, tone },
     });
