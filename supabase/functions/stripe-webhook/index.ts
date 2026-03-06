@@ -12,10 +12,23 @@ Deno.serve(async (req) => {
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      const { name, company, description, tone } = session.metadata;
+      const metadata = session.metadata;
       const email = session.customer_email;
 
       console.log("[webhook] Processing payment for:", email);
+
+      // Reassemble description if it was split into chunks
+      let description = metadata.description || "";
+      if (metadata.description_chunks) {
+        const chunks = parseInt(metadata.description_chunks);
+        const parts: string[] = [];
+        for (let i = 0; i < chunks; i++) {
+          parts.push(metadata[`description_${i}`] || "");
+        }
+        description = parts.join("");
+      }
+
+      const { name, company, tone } = metadata;
 
       // Step 1: Generate complaint letter
       console.log("[webhook] Calling generate-complaint...");
