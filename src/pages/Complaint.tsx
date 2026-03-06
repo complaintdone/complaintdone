@@ -62,16 +62,33 @@ const Complaint = () => {
     setShowSuggestions(false);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.email || !form.company || !form.description) {
       toast.error("Please fill in all required fields.");
       return;
     }
     setLoading(true);
-    // TODO: Create Stripe checkout session via edge function
-    toast.info("Stripe checkout will be integrated shortly.");
-    setLoading(false);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("Could not start checkout. Please try again.");
+        setLoading(false);
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
