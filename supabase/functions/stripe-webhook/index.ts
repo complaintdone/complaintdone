@@ -1,14 +1,40 @@
+import Stripe from "https://esm.sh/stripe@14.21.0";
+
 Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 
     console.log("[webhook] Received request");
 
-    const body = await req.text();
-    const event = JSON.parse(body);
+    // Verify Stripe signature
+    const signature = req.headers.get("stripe-signature");
+    if (!signature) {
+      console.error("[webhook] No stripe-signature header");
+      return new Response(JSON.stringify({ error: "No signature" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
 
-    console.log("[webhook] Event type:", event.type);
+    const body = await req.text();
+
+    let event;
+    try {
+      const stripe = new Stripe(stripeKey || "", {
+        apiVersion: "2023-10-16",
+      });
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret || "");
+      console.log("[webhook] Signature verified, event type:", event.type);
+    } catch (err) {
+      console.error("[webhook] Signature verification failed:", err.message);
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
