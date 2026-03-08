@@ -1,4 +1,11 @@
 project_id = "zwfqmnxozwksdkygojsh"
+
+[functions.create-checkout]
+enabled = true
+verify_jwt = true
+import_map = "./functions/create-checkout/deno.json"
+entrypoint = "./functions/create-checkout/index.ts"
+
 [functions.generate-complaint]
 enabled = true
 verify_jwt = true
@@ -23,7 +30,7 @@ entrypoint = "./functions/send-email/index.ts"
 
 [functions.stripe-webhook]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/stripe-webhook/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
