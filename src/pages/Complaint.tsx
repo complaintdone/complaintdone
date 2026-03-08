@@ -25,13 +25,22 @@ const COMPANIES = [
 const MAX_CHARS = 2000;
 
 const Complaint = () => {
-  const [form, setForm] = useState({ name: "", email: "", company: "", description: "", tone: "firm" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    company: "",
+    description: "",
+    tone: "firm",
+    market: "uk",
+    outcome: ""
+  });
   const [loading, setLoading] = useState(false);
   const [companySuggestions, setCompanySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const companyRef = useRef<HTMLDivElement>(null);
 
   const charCount = form.description.length;
+  const price = form.market === "usa" ? "$5.00" : "£3.00";
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -114,6 +123,20 @@ const handleSubmit = async (e: React.FormEvent) => {
           <p className="text-muted-foreground mb-8">We'll generate a professional complaint letter and find the right escalation contacts.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Market selector */}
+            <div>
+              <Label>Your market *</Label>
+              <Select value={form.market} onValueChange={(val) => setForm((prev) => ({ ...prev, market: val }))}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select market" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="uk">🇬🇧 UK — £3.00</SelectItem>
+                  <SelectItem value="usa">🇺🇸 USA — $5.00</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label htmlFor="name">Your name (optional)</Label>
               <Input id="name" name="name" placeholder="Jane Smith" value={form.name} onChange={handleChange} className="mt-1.5" />
@@ -174,6 +197,24 @@ const handleSubmit = async (e: React.FormEvent) => {
               </Select>
             </div>
 
+            {/* Desired outcome selector */}
+            <div>
+              <Label>Desired outcome (optional)</Label>
+              <Select value={form.outcome} onValueChange={(val) => setForm((prev) => ({ ...prev, outcome: val }))}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select desired outcome" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full_refund">Full refund</SelectItem>
+                  <SelectItem value="partial_refund">Partial refund</SelectItem>
+                  <SelectItem value="written_apology">Written apology</SelectItem>
+                  <SelectItem value="account_credit">Account credit</SelectItem>
+                  <SelectItem value="formal_investigation">Formal investigation</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Description with character counter */}
             <div>
               <Label htmlFor="description">What happened? *</Label>
@@ -195,7 +236,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <Button type="submit" variant="cta" size="lg" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Generate & Pay — £1.49"}
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `Generate & Pay — ${price}`}
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">

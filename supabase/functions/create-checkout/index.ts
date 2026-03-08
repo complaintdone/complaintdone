@@ -77,7 +77,17 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, name, company, description, tone } = await req.json();
+    const { email, name, company, description, tone, market } = await req.json();
+
+    // Select price based on market
+    const PRICE_IDS: Record<string, string> = {
+      uk: "price_1T8lZyPt9nNFZaKH5MAnzlq0",  // £3.00 GBP
+      usa: "price_1T8lZyPt9nNFZaKHNeNvTdRL", // $5.00 USD
+    };
+
+    // Default to UK if market is missing or unrecognised
+    const selectedMarket = (market && market.toLowerCase() === "usa") ? "usa" : "uk";
+    const priceId = PRICE_IDS[selectedMarket];
 
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
@@ -105,7 +115,7 @@ Deno.serve(async (req) => {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: [{ price: "price_1T7w2IPt9nNFZaKHsb5S6GUv", quantity: 1 }],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",
       success_url: `https://www.complaintdone.com/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://www.complaintdone.com/complaint`,
