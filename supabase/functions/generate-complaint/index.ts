@@ -19,7 +19,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { name, company, description, tone } = await req.json();
+    const { name, company, description, tone, outcome, market } = await req.json();
+
+    // Build market-aware legal references
+    const legalReferences = market === "usa"
+      ? "I am aware of my rights under federal consumer protection laws and may escalate this matter to the Federal Trade Commission (FTC), Consumer Financial Protection Bureau (CFPB), or Better Business Bureau (BBB) if necessary."
+      : "I am aware of my rights under the Consumer Rights Act 2015 and may escalate this matter to the Financial Ombudsman Service, Trading Standards, or relevant regulatory body if necessary.";
+
+    // Build outcome statement if provided
+    const outcomeMap: Record<string, string> = {
+      full_refund: "a full refund",
+      partial_refund: "a partial refund",
+      written_apology: "a written apology",
+      account_credit: "account credit",
+      formal_investigation: "a formal investigation into this matter",
+      other: "a resolution"
+    };
+    const outcomeStatement = outcome && outcomeMap[outcome]
+      ? `I am seeking ${outcomeMap[outcome]}.`
+      : "";
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -34,10 +52,12 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: "user",
-            content: `Write a professional complaint letter on behalf of ${name} to ${company}. 
+            content: `Write a professional complaint letter on behalf of ${name} to ${company}.
 Tone: ${tone}.
 Details: ${description}.
+${outcomeStatement ? `Desired outcome: ${outcomeStatement}` : ""}
 Format it as a proper letter with date, greeting, body paragraphs, and sign-off.
+Include this legal reference in the final paragraph: "${legalReferences}"
 Sign it from ${name}.`,
           },
         ],

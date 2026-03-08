@@ -109,6 +109,8 @@ Deno.serve(async (req) => {
       const name = metadata.name || "";
       const company = metadata.company || "";
       const tone = metadata.tone || "firm";
+      const market = metadata.market || "uk";
+      const outcome = metadata.outcome || null;
 
       console.log(`Processing complaint: ${company} for ${email}`);
 
@@ -124,7 +126,7 @@ Deno.serve(async (req) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${supabaseAnonKey}`,
           },
-          body: JSON.stringify({ name, email, company, description, tone }),
+          body: JSON.stringify({ name, email, company, description, tone, market, outcome }),
         }
       );
 
@@ -157,6 +159,30 @@ Deno.serve(async (req) => {
       }
 
       console.log(`Email sent successfully to ${email}`);
+
+      // Log to complaints table (no PII - just metadata for analytics)
+      const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+      if (supabaseUrl && supabaseServiceKey) {
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const { error: insertError } = await supabase
+          .from("complaints")
+          .insert({
+            company,
+            market,
+            tone,
+            outcome,
+            status: "delivered"
+          });
+
+        if (insertError) {
+          console.error("Failed to log complaint:", insertError);
+          // Don't throw - logging failure shouldn't break the webhook
+        } else {
+          console.log("Complaint logged to database");
+        }
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {

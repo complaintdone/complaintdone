@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, name, company, description, tone, market } = await req.json();
+    const { email, name, company, description, tone, market, outcome } = await req.json();
 
     // Select price based on market
     const PRICE_IDS: Record<string, string> = {
@@ -99,6 +99,8 @@ Deno.serve(async (req) => {
       name: name || "",
       company: company || "",
       tone: tone || "firm",
+      market: selectedMarket,
+      outcome: outcome || "",
     };
 
     // Split description into multiple fields if needed

@@ -131,7 +131,11 @@ const Index = () => {
             Complaint<span className="text-accent">Done</span>
           </span>
           <p className="text-center">AI-generated content for informational purposes only. Not legal advice.</p>
-          <Link to="/terms" className="underline hover:text-foreground">Terms & Disclaimer</Link>
+          <div className="flex gap-4 text-sm">
+            <Link to="/terms" className="underline hover:text-foreground">Terms & Disclaimer</Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
+          </div>
         </div>
       </footer>
     </div>
