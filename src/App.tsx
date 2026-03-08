@@ -8,6 +8,9 @@ import Complaint from "./pages/Complaint";
 import Success from "./pages/Success";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import About from "./pages/About";
+import Examples from "./pages/Examples";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/complaint" element={<Complaint />} />
           <Route path="/success" element={<Success />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/examples" element={<Examples />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="*" element={<NotFound />} />

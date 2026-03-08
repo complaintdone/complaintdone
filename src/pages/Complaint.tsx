@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,13 +25,21 @@ const COMPANIES = [
 const MAX_CHARS = 2000;
 
 const Complaint = () => {
+  const [searchParams] = useSearchParams();
+  const marketParam = searchParams.get("market");
+
+  // Initialize market from URL param (uk or usa), default to uk
+  const initialMarket = marketParam && (marketParam.toLowerCase() === "usa" || marketParam.toLowerCase() === "uk")
+    ? marketParam.toLowerCase()
+    : "uk";
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     company: "",
     description: "",
     tone: "firm",
-    market: "uk",
+    market: initialMarket,
     outcome: ""
   });
   const [loading, setLoading] = useState(false);
