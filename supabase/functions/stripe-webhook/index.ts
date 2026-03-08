@@ -1,129 +1,173 @@
-import Stripe from "https://esm.sh/stripe@14.21.0";
+// supabase/functions/stripe-webhook/index.ts
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
+};
+
+// Native HMAC-SHA256 verification using Deno's built-in crypto.subtle
+// No imports needed - avoids EarlyDrop crashes from Stripe SDK
+async function verifyStripeSignature(
+  body: string,
+  signature: string,
+  secret: string
+): Promise<boolean> {
+  const elements = signature.split(",");
+  const timestampEl = elements.find((e) => e.startsWith("t="));
+  const sigEl = elements.find((e) => e.startsWith("v1="));
+
+  if (!timestampEl || !sigEl) return false;
+
+  const timestamp = timestampEl.split("=")[1];
+  const receivedSig = sigEl.split("=")[1];
+
+  // Replay attack prevention: reject if > 5 minutes old
+  const currentTime = Math.floor(Date.now() / 1000);
+  if (currentTime - parseInt(timestamp) > 300) {
+    console.error("Webhook timestamp too old - possible replay attack");
+    return false;
+  }
+
+  const signedPayload = `${timestamp}.${body}`;
+
+  // Import the secret as a CryptoKey
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  // Sign the payload
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(signedPayload)
+  );
+
+  // Convert to hex string
+  const expectedSig = Array.from(new Uint8Array(signatureBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // Timing-safe comparison (prevents timing attacks)
+  if (expectedSig.length !== receivedSig.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < expectedSig.length; i++) {
+    mismatch |= expectedSig.charCodeAt(i) ^ receivedSig.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY");
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-
-    console.log("[webhook] Received request");
-
-    // Verify Stripe signature
-    const signature = req.headers.get("stripe-signature");
-    if (!signature) {
-      console.error("[webhook] No stripe-signature header");
-      return new Response(JSON.stringify({ error: "No signature" }), {
-        headers: { "Content-Type": "application/json" },
-        status: 401,
-      });
-    }
-
     const body = await req.text();
+    const signature = req.headers.get("stripe-signature");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-    let event;
-    try {
-      const stripe = new Stripe(stripeKey || "", {
-        apiVersion: "2023-10-16",
-      });
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret || "");
-      console.log("[webhook] Signature verified, event type:", event.type);
-    } catch (err) {
-      console.error("[webhook] Signature verification failed:", err.message);
-      return new Response(JSON.stringify({ error: "Invalid signature" }), {
-        headers: { "Content-Type": "application/json" },
+    // Verify signature before doing anything else
+    if (!signature || !webhookSecret) {
+      console.error("Missing signature or webhook secret");
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
+        headers: { "Content-Type": "application/json" },
       });
     }
+
+    const isValid = await verifyStripeSignature(body, signature, webhookSecret);
+    if (!isValid) {
+      console.error("Invalid Stripe signature");
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Signature verified — safe to process
+    const event = JSON.parse(body);
+    console.log("Verified Stripe event:", event.type);
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      const metadata = session.metadata;
-      const email = session.customer_email;
+      const email = session.customer_details?.email;
+      const metadata = session.metadata || {};
 
-      console.log("[webhook] Processing payment for:", email);
+      // Reassemble chunked description from metadata
+      let description = "";
+      let i = 0;
+      while (metadata[`description_${i}`]) {
+        description += metadata[`description_${i}`];
+        i++;
+      }
 
-      // Reassemble description if it was split into chunks
-      let description = metadata.description || "";
-      if (metadata.description_chunks) {
-        const chunks = parseInt(metadata.description_chunks);
-        const parts: string[] = [];
-        for (let i = 0; i < chunks; i++) {
-          parts.push(metadata[`description_${i}`] || "");
+      const name = metadata.name || "";
+      const company = metadata.company || "";
+      const tone = metadata.tone || "firm";
+
+      console.log(`Processing complaint: ${company} for ${email}`);
+
+      // Call generate-complaint function
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+      const generateResponse = await fetch(
+        `${supabaseUrl}/functions/v1/generate-complaint`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ name, email, company, description, tone }),
         }
-        description = parts.join("");
+      );
+
+      if (!generateResponse.ok) {
+        const err = await generateResponse.text();
+        console.error("generate-complaint failed:", err);
+        throw new Error(`Letter generation failed: ${err}`);
       }
 
-      const { name, company, tone } = metadata;
+      const { letter } = await generateResponse.json();
+      console.log("Letter generated successfully");
 
-      // Step 1: Generate complaint letter
-      console.log("[webhook] Calling generate-complaint...");
-      const generateRes = await fetch(`${supabaseUrl}/functions/v1/generate-complaint`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({ name, company, description, tone }),
-      });
+      // Call send-email function
+      const emailResponse = await fetch(
+        `${supabaseUrl}/functions/v1/send-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({ name, email, company, letter }),
+        }
+      );
 
-      if (!generateRes.ok) {
-        const errorData = await generateRes.text();
-        console.error("[webhook] generate-complaint failed:", generateRes.status, errorData);
-        throw new Error(`generate-complaint failed: ${errorData}`);
+      if (!emailResponse.ok) {
+        const err = await emailResponse.text();
+        console.error("send-email failed:", err);
+        throw new Error(`Email delivery failed: ${err}`);
       }
 
-      const generateData = await generateRes.json();
-      const { letter } = generateData;
-
-      if (!letter) {
-        console.error("[webhook] No letter in response:", generateData);
-        throw new Error("No letter generated");
-      }
-
-      console.log("[webhook] Letter generated successfully, length:", letter.length);
-
-      // Step 2: Send email
-      console.log("[webhook] Calling send-email...");
-      const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({ email, name, letter }),
-      });
-
-      if (!emailRes.ok) {
-        const errorData = await emailRes.text();
-        console.error("[webhook] send-email failed:", emailRes.status, errorData);
-        throw new Error(`send-email failed: ${errorData}`);
-      }
-
-      const emailData = await emailRes.json();
-      console.log("[webhook] Email sent successfully, id:", emailData.id);
-
-      return new Response(JSON.stringify({
-        received: true,
-        processed: true,
-        email_id: emailData.id
-      }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      });
+      console.log(`Email sent successfully to ${email}`);
     }
 
-    console.log("[webhook] Event type not handled, returning received");
-    return new Response(JSON.stringify({ received: true, processed: false }), {
-      headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ received: true }), {
       status: 200,
-    });
-
-  } catch (error) {
-    console.error("[webhook] Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
       headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Webhook error:", error.message);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
     });
   }
 });
