@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 
 const examples = [
   {
@@ -196,8 +197,15 @@ Sincerely,
 
 const Examples = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+    <>
+      <SEO
+        title="Example Complaint Letters"
+        description="See real examples of professionally formatted complaint letters for UK and USA companies. Learn what makes an effective complaint letter."
+        keywords="complaint letter examples, sample complaint letter, complaint template, formal letter example"
+        canonical="https://complaintdone.com/examples"
+      />
+      <div className="min-h-screen bg-background">
+        <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold text-primary">
             Complaint<span className="text-accent">Done</span>
@@ -278,6 +286,7 @@ const Examples = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

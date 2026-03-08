@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { SEO } from "@/components/SEO";
 
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -60,8 +61,14 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+    <>
+      <SEO
+        title="Contact Us"
+        description="Have questions about ComplaintDone? Get in touch with our team and we'll respond within 1 business day."
+        canonical="https://complaintdone.com/contact"
+      />
+      <div className="min-h-screen bg-background">
+        <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold text-primary">
             Complaint<span className="text-accent">Done</span>
@@ -156,6 +163,7 @@ const Contact = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

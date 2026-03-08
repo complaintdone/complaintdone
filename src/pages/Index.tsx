@@ -3,14 +3,21 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText, Zap, Send, Shield, Scale, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const [market, setMarket] = useState<"uk" | "usa">("uk");
   const price = market === "uk" ? "£3" : "$5";
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
+    <>
+      <SEO
+        title="Professional AI Complaint Letters - £3 UK | $5 USA"
+        description="Generate legally-backed complaint letters in 60 seconds. Consumer Rights Act references, professional tone, delivered instantly. No subscription."
+        keywords="complaint letter UK, consumer complaint, formal complaint letter, British Gas complaint, Sky complaint, refund letter"
+      />
+      <div className="min-h-screen bg-background">
+        {/* Nav */}
       <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold text-primary">
@@ -303,6 +310,7 @@ const Index = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

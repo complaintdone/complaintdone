@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { SEO } from "@/components/SEO";
 import {
   Select,
   SelectContent,
@@ -112,8 +113,15 @@ const handleSubmit = async (e: React.FormEvent) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+    <>
+      <SEO
+        title="Create Your Complaint Letter"
+        description="Fill in your complaint details and receive a professionally formatted letter with legal references in under 60 seconds."
+        keywords="complaint form, write complaint letter, generate complaint, formal complaint"
+        canonical="https://complaintdone.com/complaint"
+      />
+      <div className="min-h-screen bg-background">
+        <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold text-primary">
             Complaint<span className="text-accent">Done</span>
@@ -255,6 +263,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 

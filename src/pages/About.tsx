@@ -2,10 +2,17 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <SEO
+        title="About ComplaintDone"
+        description="Learn the story behind ComplaintDone - created from 15 years of customer service experience to help you get the refunds and resolutions you deserve."
+        canonical="https://complaintdone.com/about"
+      />
+      <div className="min-h-screen bg-background">
       <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="font-heading text-xl font-bold text-primary">
@@ -92,6 +99,7 @@ const About = () => {
         </motion.div>
       </div>
     </div>
+    </>
   );
 };
 
