@@ -149,6 +149,7 @@ src/
 - Functions run in Deno, not Node.js - use Deno-compatible imports (e.g., `https://esm.sh/` for npm packages)
 - CORS headers required on all function responses
 - Always handle OPTIONS preflight requests
+- Stripe SDK's `constructEvent` crashes in Deno (EarlyDrop error) - use manual HMAC verification instead
 
 **Environment Variables:**
 - Frontend vars must be prefixed with `VITE_`
@@ -158,8 +159,44 @@ src/
 - Hardcoded price ID: `price_1T7w2IPt9nNFZaKHsb5S6GUv` (£1.49)
 - Success/cancel URLs point to production domain: `complaintdone.com`
 - Metadata in checkout session carries complaint details to webhook
+- Metadata limit: 500 chars per value - descriptions split into chunks if >490 chars
 
 **AI Generation:**
 - Model: claude-haiku-4-5-20251001 (fast, cost-effective)
 - Max tokens: 1024
 - Prompt structure in generate-complaint/index.ts:37-41
+
+## ⚠️ Current Security Gaps
+
+**CRITICAL - Must Fix Before Scaling:**
+
+1. **No Stripe Webhook Signature Verification**
+   - Anyone can POST to webhook URL and trigger emails/API calls
+   - Previous `constructEvent` removed due to Deno incompatibility
+   - Need manual HMAC-SHA256 verification implementation
+   - See SECURITY_HANDOFF.md for implementation code
+
+2. **JWT Verification Disabled on All Functions**
+   - All 4 functions have `verify_jwt = false` in config.toml
+   - Dashboard setting "Verify JWT with legacy secret" = OFF for all functions
+   - Functions accept unauthenticated requests
+   - Should re-enable for create-checkout, generate-complaint, send-email
+   - Keep disabled ONLY for stripe-webhook (Stripe doesn't send JWT)
+
+3. **No Rate Limiting**
+   - No protection against spam submissions
+   - Could drain Anthropic/Resend credits
+   - Implement IP-based rate limiting in create-checkout
+
+**See SECURITY_HANDOFF.md for detailed fixes and priority order**
+
+## System Status (as of 8 March 2026)
+
+✅ **Working:**
+- Full payment flow (£1.49 via Stripe)
+- Letter generation (Claude API)
+- Email delivery (Resend)
+- Success page routing (vercel.json configured)
+- First revenue confirmed
+
+❌ **Security gaps listed above - DO NOT scale until fixed**
