@@ -2,7 +2,7 @@ import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://www.complaintdone.com",  // ✅ SECURITY: Restricted to production domain only
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -79,15 +79,71 @@ Deno.serve(async (req) => {
 
     const { email, name, company, description, tone, market, outcome } = await req.json();
 
+    // ✅ SECURITY: Backend input validation (defense-in-depth)
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      return new Response(JSON.stringify({ error: "Invalid email address" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Validate required fields
+    if (!company || company.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Company name is required" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    if (!description || description.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Complaint description is required" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Enforce description length limit
+    if (description.length > 2000) {
+      return new Response(JSON.stringify({ error: "Description must be 2000 characters or less" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Validate tone (must be one of the allowed values)
+    const allowedTones = ["polite", "firm", "assertive"];
+    if (tone && !allowedTones.includes(tone)) {
+      return new Response(JSON.stringify({ error: "Invalid tone value" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Validate market (must be uk or usa)
+    const allowedMarkets = ["uk", "usa"];
+    if (market && !allowedMarkets.includes(market)) {
+      return new Response(JSON.stringify({ error: "Invalid market value" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // ✅ SECURITY: Use environment variables for configuration (flexible and secure)
     // Select price based on market
     const PRICE_IDS: Record<string, string> = {
-      uk: "price_1T8lZyPt9nNFZaKH5MAnzlq0",  // £3.00 GBP
-      usa: "price_1T8lZyPt9nNFZaKHNeNvTdRL", // $5.00 USD
+      uk: Deno.env.get("STRIPE_PRICE_ID_UK") || "price_1T8lZyPt9nNFZaKH5MAnzlq0",  // £3.00 GBP
+      usa: Deno.env.get("STRIPE_PRICE_ID_USA") || "price_1T8lZyPt9nNFZaKHNeNvTdRL", // $5.00 USD
     };
 
     // Default to UK if market is missing or unrecognised
     const selectedMarket = (market && market.toLowerCase() === "usa") ? "usa" : "uk";
     const priceId = PRICE_IDS[selectedMarket];
+
+    // Get redirect URLs from environment (with fallback to production)
+    const successUrl = Deno.env.get("STRIPE_SUCCESS_URL") || "https://www.complaintdone.com/success?session_id={CHECKOUT_SESSION_ID}";
+    const cancelUrl = Deno.env.get("STRIPE_CANCEL_URL") || "https://www.complaintdone.com/complaint";
 
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
@@ -119,8 +175,8 @@ Deno.serve(async (req) => {
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "payment",
-      success_url: `https://www.complaintdone.com/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://www.complaintdone.com/complaint`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       customer_email: email,
       metadata,
     });

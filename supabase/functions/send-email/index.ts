@@ -4,6 +4,16 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// ✅ SECURITY: HTML escape function to prevent XSS (defense-in-depth)
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -33,10 +43,10 @@ Deno.serve(async (req) => {
         subject: "Your Complaint Letter is Ready",
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #1B3A5C;">Your complaint letter is ready, ${name}</h2>
+            <h2 style="color: #1B3A5C;">Your complaint letter is ready, ${escapeHtml(name || "there")}</h2>
             <p>Thank you for using ComplaintDone. Here is your professionally written complaint letter:</p>
             <div style="background: #f9f9f9; border-left: 4px solid #F97316; padding: 20px; margin: 20px 0; white-space: pre-wrap; font-family: Georgia, serif;">
-              ${letter.replace(/\n/g, "<br>")}
+              ${escapeHtml(letter).replace(/\n/g, "<br>")}
             </div>
             <p style="color: #6B7280; font-size: 14px;">Copy and paste this letter, or save it for your records.</p>
             <p style="color: #6B7280; font-size: 14px;">ComplaintDone — Professional complaint letters in seconds.</p>
