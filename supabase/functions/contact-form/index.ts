@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: "contact@complaintdone.com",
-        to: "contact@complaintdone.com",
+        to: "support@complaintdone.com",
         subject: `ComplaintDone Contact Form — ${name || "Anonymous"}`,
         html: `
           <h2>New Contact Form Submission</h2>

@@ -281,8 +281,11 @@ const Index = () => {
               <div className="font-heading text-xl font-bold text-foreground mb-4">
                 Complaint<span className="text-accent">Done</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-3">
                 Professional AI-generated complaint letters. UK and USA.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <a href="mailto:support@complaintdone.com" className="text-accent hover:underline">support@complaintdone.com</a>
               </p>
             </div>
             <div>

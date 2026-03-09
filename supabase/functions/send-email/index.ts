@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
         "Authorization": `Bearer ${resendKey}`,
       },
       body: JSON.stringify({
-        from: "ComplaintDone <letters@complaintdone.com>",
+        from: "ComplaintDone <noreply@complaintdone.com>",
         to: email,
         subject: "Your Complaint Letter is Ready",
         html: `

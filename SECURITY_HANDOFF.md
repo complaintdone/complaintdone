@@ -23,7 +23,7 @@
    - Letter generation takes ~5 seconds
 
 3. **Email Delivery:**
-   - Resend sends emails from letters@complaintdone.com
+   - Resend sends emails from noreply@complaintdone.com
    - HTML formatted with professional styling
    - Delivery within 60 seconds of payment
    - Domain verified and working

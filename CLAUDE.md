@@ -84,7 +84,7 @@ supabase functions deploy <function-name>
    - Requires: `RESEND_API_KEY`
    - Input: `{ name, email, company, letter }`
    - Returns: Email delivery confirmation
-   - **From:** letters@complaintdone.com
+   - **From:** noreply@complaintdone.com
 
 4. **stripe-webhook** - Handles Stripe payment webhooks
    - Requires: `STRIPE_WEBHOOK_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`

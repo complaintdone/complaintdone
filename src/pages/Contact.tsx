@@ -83,8 +83,11 @@ const Contact = () => {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-foreground mb-4">Get in Touch</h1>
-          <p className="text-muted-foreground mb-8 text-lg">
+          <p className="text-muted-foreground mb-2 text-lg">
             Have a question about your letter or the service? We're here to help.
+          </p>
+          <p className="text-muted-foreground mb-8 text-sm">
+            Or email us directly at <a href="mailto:support@complaintdone.com" className="text-accent hover:underline">support@complaintdone.com</a>
           </p>
 
           {success ? (
