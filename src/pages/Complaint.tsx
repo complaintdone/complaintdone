@@ -41,11 +41,13 @@ const Complaint = () => {
     description: "",
     tone: "firm",
     market: initialMarket,
-    outcome: ""
+    outcome: "",
+    promoCode: ""
   });
   const [loading, setLoading] = useState(false);
   const [companySuggestions, setCompanySuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showPromoField, setShowPromoField] = useState(false);
   const companyRef = useRef<HTMLDivElement>(null);
 
   const charCount = form.description.length;
@@ -250,6 +252,45 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </span>
               </div>
             </div>
+
+            {/* Hidden promo code field */}
+            {!showPromoField && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowPromoField(true)}
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
+                >
+                  Have a promo code?
+                </button>
+              </div>
+            )}
+
+            {showPromoField && (
+              <div>
+                <Label htmlFor="promoCode">Promo code</Label>
+                <div className="flex gap-2 mt-1.5">
+                  <Input
+                    id="promoCode"
+                    name="promoCode"
+                    placeholder="Enter promo code"
+                    value={form.promoCode}
+                    onChange={handleChange}
+                    className="flex-1"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPromoField(false);
+                      setForm((prev) => ({ ...prev, promoCode: "" }));
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground px-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
 
             <Button type="submit" variant="cta" size="lg" className="w-full" disabled={loading}>
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : `Generate & Pay — ${price}`}

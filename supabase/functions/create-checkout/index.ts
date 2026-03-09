@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, name, company, description, tone, market, outcome } = await req.json();
+    const { email, name, company, description, tone, market, outcome, promoCode } = await req.json();
 
     // ✅ SECURITY: Backend input validation (defense-in-depth)
     // Validate email format
@@ -130,16 +130,37 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ✅ PROMO CODE: Check if valid promo code provided (for free testing)
+    const promoCodeSecret = Deno.env.get("PROMO_CODE_SECRET");
+    const isValidPromo = promoCode && promoCodeSecret && promoCode === promoCodeSecret;
+
     // ✅ SECURITY: Use environment variables for configuration (flexible and secure)
-    // Select price based on market
-    const PRICE_IDS: Record<string, string> = {
-      uk: Deno.env.get("STRIPE_PRICE_ID_UK") || "price_1T8lZyPt9nNFZaKH5MAnzlq0",  // £3.00 GBP
-      usa: Deno.env.get("STRIPE_PRICE_ID_USA") || "price_1T8lZyPt9nNFZaKHNeNvTdRL", // $5.00 USD
+    // Select price based on market and promo code
+    const PRICE_IDS: Record<string, Record<string, string>> = {
+      paid: {
+        uk: Deno.env.get("STRIPE_PRICE_ID_UK") || "price_1T8lZyPt9nNFZaKH5MAnzlq0",  // £3.00 GBP
+        usa: Deno.env.get("STRIPE_PRICE_ID_USA") || "price_1T8lZyPt9nNFZaKHNeNvTdRL", // $5.00 USD
+      },
+      free: {
+        uk: Deno.env.get("STRIPE_PRICE_ID_UK_FREE") || "",  // £0.00 GBP
+        usa: Deno.env.get("STRIPE_PRICE_ID_USA_FREE") || "", // $0.00 USD
+      }
     };
 
     // Default to UK if market is missing or unrecognised
     const selectedMarket = (market && market.toLowerCase() === "usa") ? "usa" : "uk";
-    const priceId = PRICE_IDS[selectedMarket];
+    const priceType = isValidPromo ? "free" : "paid";
+    const priceId = PRICE_IDS[priceType][selectedMarket];
+
+    // Ensure free price ID exists if promo code is valid
+    if (isValidPromo && !priceId) {
+      return new Response(JSON.stringify({
+        error: "Free pricing not configured. Please contact support."
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
     // Get redirect URLs from environment (with fallback to production)
     const successUrl = Deno.env.get("STRIPE_SUCCESS_URL") || "https://www.complaintdone.com/success?session_id={CHECKOUT_SESSION_ID}";
