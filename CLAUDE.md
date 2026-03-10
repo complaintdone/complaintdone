@@ -122,7 +122,18 @@ src/
 │   ├── Index.tsx       # Landing page
 │   ├── Complaint.tsx   # Main complaint form (the core UX)
 │   ├── Success.tsx     # Post-payment success page
+│   ├── About.tsx       # About page
+│   ├── Examples.tsx    # Sample complaint letters
+│   ├── Contact.tsx     # Contact form
 │   ├── Terms.tsx       # Terms & conditions
+│   ├── Privacy.tsx     # Privacy policy
+│   ├── companies/      # Company-specific landing pages (SEO)
+│   │   ├── CompanyPage.tsx    # Reusable template component
+│   │   ├── BritishGas.tsx     # /companies/british-gas
+│   │   ├── Sky.tsx            # /companies/sky
+│   │   ├── BT.tsx             # /companies/bt
+│   │   ├── Vodafone.tsx       # /companies/vodafone
+│   │   └── VirginMedia.tsx    # /companies/virgin-media
 │   └── NotFound.tsx    # 404 page
 ├── components/
 │   ├── ui/             # shadcn/ui components (49+ components)
@@ -270,7 +281,7 @@ src/
    - **Fix:** Move to environment variables
    - **Priority:** LOW
 
-## 📊 System Status (as of 8 March 2026)
+## 📊 System Status (as of 10 March 2026)
 
 ### ✅ Fully Operational
 
@@ -299,6 +310,26 @@ src/
 - No monitoring/alerting setup
 
 **See SECURITY_HANDOFF.md for complete security audit and roadmap.**
+
+## 🌐 Company Landing Pages (SEO Strategy)
+
+**Live Pages (5):**
+- British Gas (/companies/british-gas)
+- Sky (/companies/sky)
+- BT (/companies/bt)
+- Vodafone (/companies/vodafone)
+- Virgin Media (/companies/virgin-media)
+
+**Each page includes:**
+- SEO-optimized title, description, keywords
+- Company-specific common complaints
+- Legal rights (Consumer Rights Act 2015)
+- Escalation process (internal → Ombudsman → regulator)
+- Sample complaint letter
+- CTA buttons pre-filled with company name
+
+**Template:** `src/pages/companies/CompanyPage.tsx` (reusable)
+**Sitemap:** Auto-generated with only existing pages (12 URLs total)
 
 ### 💰 Economics
 
