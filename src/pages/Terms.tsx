@@ -18,7 +18,7 @@ const Terms = () => (
       <div className="prose prose-neutral max-w-none space-y-6 text-muted-foreground">
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Service Description</h2>
-          <p>ComplaintDone provides AI-generated complaint letters based on information you supply. Each letter costs a one-time fee of £1.49. There are no subscriptions or recurring charges.</p>
+          <p>ComplaintDone provides AI-generated complaint letters based on information you supply. Each letter costs a one-time fee of £3.00 (UK) or $5.00 (USA). There are no subscriptions or recurring charges.</p>
         </section>
         <section>
           <h2 className="text-xl font-heading font-semibold text-foreground">Disclaimer</h2>

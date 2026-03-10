@@ -465,7 +465,7 @@ const corsHeaders = {
 
 ### Current Pricing
 
-**Revenue Per Complaint:** £1.49
+**Revenue Per Complaint:** £3.00 UK / $5.00 USA
 
 **Costs Per Complaint:**
 - Stripe fee: £0.05 (1.5% + 20p)

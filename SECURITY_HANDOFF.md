@@ -117,7 +117,7 @@ git push
 1. **Payment Flow:**
    - User fills form at /complaint (2000 char limit)
    - Stripe checkout created successfully
-   - £1.49 payment processed
+   - £3 UK / $5 USA payment processed
    - Webhook receives checkout.session.completed events
    - Success page displays correctly
 
@@ -477,7 +477,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGci... (not currently used)
 - **Total cost: ~£0.051**
 
 **Profit Per Complaint:**
-- Revenue: £1.49
+- Revenue: £3 UK / $5 USA
 - Costs: £0.051
 - **Net profit: ~£1.44**
 
@@ -519,7 +519,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGci... (not currently used)
 
 4. **Testing after deploy:**
    - Test form submission
-   - Make £1.49 test payment
+   - Make test payment (use promo code nSACtg4aX574 for £0.00)
    - Verify email delivery
    - Check Stripe webhook logs
 
