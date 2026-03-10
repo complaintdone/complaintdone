@@ -13,6 +13,11 @@ import About from "./pages/About";
 import Examples from "./pages/Examples";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import BritishGas from "./pages/companies/BritishGas";
+import Sky from "./pages/companies/Sky";
+import BT from "./pages/companies/BT";
+import Vodafone from "./pages/companies/Vodafone";
+import VirginMedia from "./pages/companies/VirginMedia";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +37,11 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/companies/british-gas" element={<BritishGas />} />
+            <Route path="/companies/sky" element={<Sky />} />
+            <Route path="/companies/bt" element={<BT />} />
+            <Route path="/companies/vodafone" element={<Vodafone />} />
+            <Route path="/companies/virgin-media" element={<VirginMedia />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
