@@ -6,18 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🚨 URGENT ISSUES (as of 10 March 2026)
+## ⚠️ ACTION REQUIRED (as of 10 March 2026)
 
-### 1. Email Provider - Google Policy Abuse
-**Status:** Google flagged email account
-**Current:** Using Resend API
-**Action Required:** Configure DNS records (SPF, DKIM, DMARC) OR switch to Postmark
-**Guide:** See EMAIL_PROVIDER_MIGRATION.md for complete options & steps
-
-### 2. JWT Verification
+### 1. JWT Verification - MANUAL CHECK NEEDED
 **Status:** Enabled in config.toml, needs verification in Dashboard
-**Action Required:** Check https://supabase.com/dashboard/project/ygobfieifodvcpvftqxr/settings/functions
+**Action Required:** Verify JWT is enabled in Supabase Dashboard
+**Check:** https://supabase.com/dashboard/project/ygobfieifodvcpvftqxr/settings/functions
 **Impact:** Functions may accept unauthenticated requests if Dashboard setting is OFF
+**Enable for:** create-checkout, generate-complaint, send-email, contact-form
+**Keep disabled for:** stripe-webhook
+
+---
+
+## ✅ RECENTLY RESOLVED (10 March 2026)
+
+### Email Provider - Google Policy Abuse ✅ RESOLVED
+**Issue:** Google had flagged email account for policy abuse
+**Resolution:** Appeal successful, account restored
+**Status:** Email delivery operating normally via Resend
+**Note:** EMAIL_PROVIDER_MIGRATION.md preserved for future reference
 
 ---
 

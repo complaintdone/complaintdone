@@ -17,18 +17,20 @@ CURRENT STATUS (10 March 2026):
 ✅ Security: A- rating (89/100) - JWT enabled, rate limiting, webhook verification
 ✅ SEO: 5 company pages live (British Gas, Sky, BT, Vodafone, Virgin Media)
 ✅ Sitemap: Fixed from 31 broken URLs → 12 working URLs
+✅ Email: Restored - Google appeal successful, Resend operating normally
 
-⚠️ URGENT ISSUE: Google flagged email account for policy abuse
-→ Solution: Configure DNS records for Resend OR switch to Postmark
-→ See: EMAIL_PROVIDER_MIGRATION.md for complete guide
+⚠️ ACTION REQUIRED: Verify JWT enforcement in Supabase Dashboard
+→ Check: https://supabase.com/dashboard/project/ygobfieifodvcpvftqxr/settings/functions
+→ Enable for: create-checkout, generate-complaint, send-email, contact-form
 
 📁 KEY FILES (read these for full context):
 - CLAUDE.md - Main project documentation (SINGLE SOURCE OF TRUTH)
-- EMAIL_PROVIDER_MIGRATION.md - Email provider fix options
 - VERIFICATION_GUIDE.md - Testing checklist
 - SECURITY_HANDOFF.md - Security audit & gaps
+- EMAIL_PROVIDER_MIGRATION.md - Email provider guide (for reference only - issue resolved)
 
 🔧 RECENT CHANGES (10 March):
+- ✅ Email account restored (Google appeal successful)
 - Built 5 company landing pages for SEO
 - Fixed sitemap (removed 25 non-existent pages)
 - Fixed pricing references (was £1.49, now £3/$5)
@@ -42,8 +44,8 @@ CURRENT STATUS (10 March 2026):
 - Promo code for testing: nSACtg4aX574 (£0.00 checkout)
 
 🎯 IMMEDIATE PRIORITIES:
-1. Fix email provider issue (Google policy abuse)
-2. Verify JWT enforcement in Supabase Dashboard
+1. Verify JWT enforcement in Supabase Dashboard
+2. Test full payment flow (use promo code: nSACtg4aX574)
 3. Build 10 more company pages (see GROWTH_PLAN.md)
 
 WHAT DO YOU NEED HELP WITH?
@@ -130,20 +132,12 @@ Then help me with: [your question]
 
 ### ⚠️ Known Issues
 
-**1. Email Provider - URGENT**
-- Google flagged account for policy abuse
-- Currently using Resend API
-- Need to either:
-  a) Configure DNS records (SPF, DKIM, DMARC)
-  b) Switch to Postmark
-- See EMAIL_PROVIDER_MIGRATION.md
-
-**2. JWT Verification**
+**1. JWT Verification - NEEDS MANUAL CHECK**
 - Enabled in config.toml
 - NEEDS MANUAL VERIFICATION in Supabase Dashboard
 - Check: https://supabase.com/dashboard/project/ygobfieifodvcpvftqxr/settings/functions
 
-**3. Documentation**
+**2. Documentation**
 - Some pricing references may still be outdated
 - Need to ensure CLAUDE.md is always updated first
 
@@ -175,10 +169,10 @@ Then help me with: [your question]
 
 ### Email Provider
 - **Current:** Resend API
-- **Issue:** Google policy abuse flag
-- **Options:** Fix DNS OR switch to Postmark
-- **Decision:** TBD (user needs to choose)
-- **Date:** 10 March 2026
+- **Issue:** Google policy abuse flag (10 March 2026)
+- **Resolution:** Appeal successful, account restored
+- **Decision:** Keep Resend, no migration needed
+- **Date:** 10 March 2026 (resolved same day)
 
 ### Company Pages Strategy
 - **Decision:** Build 5 high-priority pages first, then expand
@@ -203,17 +197,25 @@ Then help me with: [your question]
 **Use this template after each ClaudeCode session to track what was done:**
 
 ```
-DATE: 10 March 2026
+DATE: 10 March 2026 (Session 1)
 ISSUE: Google email policy abuse + pricing inconsistencies
 OUTCOME:
   ✅ Created EMAIL_PROVIDER_MIGRATION.md
   ✅ Fixed all pricing references (£1.49 → £3/$5)
   ✅ Created CLAUDE_DESKTOP_CONTEXT.md for syncing
-  ⏳ User needs to: Choose email provider fix option
+  ✅ Email issue RESOLVED - Google appeal successful
+
+DATE: 10 March 2026 (Session 2)
+ISSUE: Email account restored
+OUTCOME:
+  ✅ Updated all docs to reflect email resolution
+  ✅ EMAIL_PROVIDER_MIGRATION.md marked as resolved
+  ✅ CLAUDE.md urgent issues section updated
+  ✅ CLAUDE_DESKTOP_CONTEXT.md priorities updated
 
 NEXT ACTIONS:
-  1. User: Check Resend DNS settings OR sign up for Postmark
-  2. User: Verify JWT enforcement in Supabase Dashboard
+  1. User: Verify JWT enforcement in Supabase Dashboard
+  2. User: Test full payment flow with promo code
   3. ClaudeCode: Build next 10 company pages
 ```
 
