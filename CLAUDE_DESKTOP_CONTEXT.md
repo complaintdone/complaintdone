@@ -11,37 +11,63 @@
 ```
 I'm working on ComplaintDone.com - a live SaaS complaint letter generator.
 
+🚨 URGENT BUG - NEEDS IMMEDIATE FIX (11 March 2026):
+❌ Letter generation hanging after payment completes
+❌ Payment works, promo code works, success page shows
+❌ "Generating your letter" shows with loading spinner - hangs forever
+❌ No email arrives in inbox
+❌ LIKELY CAUSE: CORS misconfiguration on internal functions
+
+ROOT CAUSE (90% confidence):
+- 2 hours ago: Removed CORS wildcards from generate-complaint and send-email
+- Changed "Access-Control-Allow-Origin" from "*" to "" (empty string)
+- This blocks stripe-webhook → generate-complaint → send-email chain
+- Functions can't call each other (server-to-server blocked)
+
+QUICK FIX NEEDED:
+- Revert CORS to "*" temporarily OR
+- Change to Supabase domain: "https://ygobfieifodvcpvftqxr.supabase.co"
+- Redeploy generate-complaint and send-email
+
+READ THIS FILE FIRST: URGENT_BUG.md (full troubleshooting guide)
+
+---
+
 CURRENT STATUS (11 March 2026):
 ✅ Live & profitable: £3 UK / $5 USA per letter
 ✅ Tech stack: React 18 + Supabase Edge Functions + Stripe + Claude API
 ✅ Security: A- rating (92/100) - ENTERPRISE-GRADE SECURE 🔒
+🔴 Payment flow BROKEN after security hardening deployment
 ✅ SEO: 5 company pages live (British Gas, Sky, BT, Vodafone, Virgin Media)
-✅ Sitemap: Fixed from 31 broken URLs → 12 working URLs
 ✅ Email: Restored - Google appeal successful, Resend operating normally
 
-🔒 SECURITY HARDENING COMPLETE (11 March 2026):
+🔒 SECURITY HARDENING COMPLETE (11 March 2026) - BUT BROKE PAYMENT FLOW:
 ✅ XSS prevention (HTML escaping in all email templates)
-✅ CORS security (wildcards removed from internal APIs)
+❌ CORS security (wildcards removed - TOO RESTRICTIVE, broke internal calls)
 ✅ GDPR compliance (email masking in logs)
 ✅ Dependency security (0 production vulnerabilities)
 ✅ Information disclosure prevented (generic error messages)
 ✅ All 4 Edge Functions redeployed with hardening
 
 📁 KEY FILES (read these for full context):
+- 🚨 URGENT_BUG.md - CRITICAL BUG: Letter generation hanging (READ THIS FIRST)
 - CLAUDE.md - Main project documentation (SINGLE SOURCE OF TRUTH)
 - VERIFICATION_GUIDE.md - Testing checklist
 - SECURITY_HANDOFF.md - Security audit & gaps
-- EMAIL_PROVIDER_MIGRATION.md - Email provider guide (for reference only - issue resolved)
 
 🔧 RECENT CHANGES (11 March):
 - ✅ Security hardening complete: B+ (85/100) → A- (92/100)
 - ✅ Fixed XSS vulnerability in contact-form (HTML escaping)
-- ✅ Removed CORS wildcards from internal APIs (generate-complaint, send-email)
+- ❌ Removed CORS wildcards from internal APIs - BROKE PAYMENT FLOW
+  * Changed generate-complaint CORS: "*" → "" (empty string)
+  * Changed send-email CORS: "*" → "" (empty string)
+  * Result: stripe-webhook can't call these functions anymore
+  * Fix needed: Change to Supabase domain or revert to wildcard
 - ✅ Updated 28 dependencies, patched react-router-dom XSS (6.30.2 → 6.30.3)
 - ✅ Added GDPR-compliant email masking in all logs
 - ✅ Implemented generic error messages (prevents info disclosure)
-- ✅ Deployed all 4 Edge Functions with security fixes
-- ✅ Production runtime: 0 vulnerabilities
+- ✅ Deployed all 4 Edge Functions with security fixes at 20:33 UTC
+- ❌ Discovered payment flow broken after deployment (letter generation hangs)
 
 Previous changes (10 March):
 - Email account restored (Google appeal successful)
@@ -56,9 +82,12 @@ Previous changes (10 March):
 - Promo code for testing: nSACtg4aX574 (£0.00 checkout)
 
 🎯 IMMEDIATE PRIORITIES:
-1. Test full payment flow (use promo code: nSACtg4aX574)
-2. Monitor Supabase logs for any errors post-deployment
-3. Build 10 more company pages (see GROWTH_PLAN.md)
+1. 🚨 FIX URGENT BUG: Letter generation hanging (CORS issue)
+   - Check Supabase logs (stripe-webhook, generate-complaint, send-email)
+   - Fix CORS configuration on internal functions
+   - Redeploy and test immediately
+2. Verify payment flow works end-to-end after fix
+3. Monitor Supabase logs for any errors post-fix
 
 WHAT DO YOU NEED HELP WITH?
 ```
