@@ -1,9 +1,17 @@
 // supabase/functions/stripe-webhook/index.ts
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "*",  // ✅ SECURITY: Wildcard OK here - Stripe needs external access, protected by HMAC signature
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
+
+// ✅ SECURITY: Mask email addresses in logs (GDPR compliance)
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return '***';
+  const [local, domain] = email.split('@');
+  const maskedLocal = local.length <= 2 ? '**' : local.substring(0, 2) + '***';
+  return `${maskedLocal}@${domain}`;
+}
 
 // Native HMAC-SHA256 verification using Deno's built-in crypto.subtle
 // No imports needed - avoids EarlyDrop crashes from Stripe SDK
@@ -112,7 +120,7 @@ Deno.serve(async (req) => {
       const market = metadata.market || "uk";
       const outcome = metadata.outcome || null;
 
-      console.log(`Processing complaint: ${company} for ${email}`);
+      console.log(`Processing complaint: ${company} for ${maskEmail(email)}`);
 
       // Call generate-complaint function
       const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -158,7 +166,7 @@ Deno.serve(async (req) => {
         throw new Error(`Email delivery failed: ${err}`);
       }
 
-      console.log(`Email sent successfully to ${email}`);
+      console.log(`Email sent successfully to ${maskEmail(email)}`);
 
       // Log to complaints table (no PII - just metadata for analytics)
       const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
@@ -190,8 +198,8 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Webhook error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Webhook error:", error.message, error.stack);  // ✅ SECURITY: Log details server-side only
+    return new Response(JSON.stringify({ error: "Webhook processing failed" }), {  // ✅ SECURITY: Generic error message
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

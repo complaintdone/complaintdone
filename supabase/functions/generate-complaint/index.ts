@@ -1,5 +1,6 @@
+// ✅ SECURITY: No CORS headers - internal function only (called by stripe-webhook)
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "",  // Internal only - no browser access
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
@@ -73,7 +74,8 @@ Sign it from ${name}.`,
     });
 
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Generate complaint error:", error.message, error.stack);  // ✅ SECURITY: Log details server-side only
+    return new Response(JSON.stringify({ error: "An error occurred while generating your complaint letter" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

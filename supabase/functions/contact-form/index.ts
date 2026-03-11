@@ -6,6 +6,24 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// ✅ SECURITY: HTML escaping to prevent XSS attacks
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ✅ SECURITY: Mask email addresses in logs (GDPR compliance)
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return '***';
+  const [local, domain] = email.split('@');
+  const maskedLocal = local.length <= 2 ? '**' : local.substring(0, 2) + '***';
+  return `${maskedLocal}@${domain}`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -98,10 +116,10 @@ Deno.serve(async (req) => {
         subject: `ComplaintDone Contact Form — ${name || "Anonymous"}`,
         html: `
           <h2>New Contact Form Submission</h2>
-          <p><strong>From:</strong> ${name || "Not provided"}</p>
-          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>From:</strong> ${escapeHtml(name || "Not provided")}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, "<br>")}</p>
+          <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
           <hr>
           <p style="color: #666; font-size: 12px;">Sent from complaintdone.com contact form</p>
         `,
@@ -114,7 +132,7 @@ Deno.serve(async (req) => {
       throw new Error("Failed to send email");
     }
 
-    console.log(`Contact form email sent from ${email}`);
+    console.log(`Contact form email sent from ${maskEmail(email)}`);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -122,8 +140,8 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error("Contact form error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("Contact form error:", error.message, error.stack);
+    return new Response(JSON.stringify({ error: "An error occurred while processing your request. Please try again." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
