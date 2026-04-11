@@ -10,13 +10,19 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<"idle" | "submitted">("idle");
 
-  const handleEmailCapture = (e: React.FormEvent) => {
+  const handleEmailCapture = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // Store in localStorage as a fallback; swap for ConvertKit/Resend when ready
-    const existing = JSON.parse(localStorage.getItem("cd_leads") ?? "[]");
-    existing.push({ email, date: new Date().toISOString() });
-    localStorage.setItem("cd_leads", JSON.stringify(existing));
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      await fetch(`${supabaseUrl}/functions/v1/capture-lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "homepage" }),
+      });
+    } catch (_) {
+      // Fail silently — UX still shows success
+    }
     setEmailStatus("submitted");
   };
   const price = market === "uk" ? "£3" : "$5";

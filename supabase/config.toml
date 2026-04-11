@@ -39,6 +39,12 @@ entrypoint = "./functions/stripe-webhook/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/stripe-webhook/*.html" ]
 
+[functions.capture-lead]
+enabled = true
+verify_jwt = false  # Public endpoint — browser posts email, validated in function body
+import_map = "./functions/capture-lead/deno.json"
+entrypoint = "./functions/capture-lead/index.ts"
+
 [functions.contact-form]
 enabled = true
 verify_jwt = true  # ✅ SECURITY: Requires valid JWT from frontend
