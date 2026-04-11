@@ -25,8 +25,6 @@ export const SEO = ({
 
   return (
     <Helmet>
-      {/* Google Search Console verification */}
-      <meta name="google-site-verification" content="6K4fH3AHvJ79HNtEcGUqwAsUUdwi_-bJSnhAlCc6CuY" />
       {/* Primary Meta Tags */}
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
