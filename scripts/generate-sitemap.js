@@ -13,14 +13,21 @@ const COMPANIES = [
   "sky",
   "bt",
   "vodafone",
-  "virgin-media"
+  "virgin-media",
+  "currys",
+  "o2",
+  "amazon-uk",
+  "royal-mail",
+  "edf-energy",
 ];
 
-// Future company pages (commented out until built):
-// "edf-energy", "amazon", "royal-mail", "currys", "evri", "dpd",
-// "barclays", "hsbc", "lloyds", "natwest", "santander",
-// "british-airways", "ryanair", "easyjet", "o2", "three",
-// "talktalk", "octopus-energy", "eon", "thames-water"
+const BLOG_POSTS = [
+  "how-to-write-a-complaint-letter-uk",
+  "consumer-rights-act-2015-refund-guide",
+  "how-to-escalate-complaint-to-ombudsman-uk",
+  "british-gas-complaint-guide-2026",
+  "formal-complaint-letter-template-uk",
+];
 
 function generateSitemap() {
   const now = new Date().toISOString().split('T')[0];
@@ -28,6 +35,7 @@ function generateSitemap() {
   const staticPages = [
     { url: '', priority: '1.0', changefreq: 'weekly' },
     { url: '/complaint', priority: '0.9', changefreq: 'weekly' },
+    { url: '/blog', priority: '0.9', changefreq: 'weekly' },
     { url: '/about', priority: '0.7', changefreq: 'monthly' },
     { url: '/examples', priority: '0.8', changefreq: 'weekly' },
     { url: '/contact', priority: '0.6', changefreq: 'monthly' },
@@ -35,14 +43,19 @@ function generateSitemap() {
     { url: '/privacy', priority: '0.5', changefreq: 'yearly' },
   ];
 
-  // Generate company-specific pages (only include ones that actually exist)
   const companyPages = COMPANIES.map(company => ({
     url: `/companies/${company}`,
     priority: '0.8',
     changefreq: 'monthly'
   }));
 
-  const allPages = [...staticPages, ...companyPages];
+  const blogPages = BLOG_POSTS.map(slug => ({
+    url: `/blog/${slug}`,
+    priority: '0.8',
+    changefreq: 'monthly'
+  }));
+
+  const allPages = [...staticPages, ...companyPages, ...blogPages];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

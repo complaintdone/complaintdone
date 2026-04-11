@@ -18,6 +18,13 @@ import Sky from "./pages/companies/Sky";
 import BT from "./pages/companies/BT";
 import Vodafone from "./pages/companies/Vodafone";
 import VirginMedia from "./pages/companies/VirginMedia";
+import Currys from "./pages/companies/Currys";
+import O2 from "./pages/companies/O2";
+import AmazonUK from "./pages/companies/AmazonUK";
+import RoyalMail from "./pages/companies/RoyalMail";
+import EDF from "./pages/companies/EDF";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +49,13 @@ const App = () => (
             <Route path="/companies/bt" element={<BT />} />
             <Route path="/companies/vodafone" element={<Vodafone />} />
             <Route path="/companies/virgin-media" element={<VirginMedia />} />
+            <Route path="/companies/currys" element={<Currys />} />
+            <Route path="/companies/o2" element={<O2 />} />
+            <Route path="/companies/amazon-uk" element={<AmazonUK />} />
+            <Route path="/companies/royal-mail" element={<RoyalMail />} />
+            <Route path="/companies/edf-energy" element={<EDF />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

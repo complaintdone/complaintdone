@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FileText, Zap, Send, Shield, Scale, Megaphone } from "lucide-react";
+import { FileText, Zap, Send, Shield, Scale, Megaphone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const [market, setMarket] = useState<"uk" | "usa">("uk");
+  const [email, setEmail] = useState("");
+  const [emailStatus, setEmailStatus] = useState<"idle" | "submitted">("idle");
+
+  const handleEmailCapture = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    // Store in localStorage as a fallback; swap for ConvertKit/Resend when ready
+    const existing = JSON.parse(localStorage.getItem("cd_leads") ?? "[]");
+    existing.push({ email, date: new Date().toISOString() });
+    localStorage.setItem("cd_leads", JSON.stringify(existing));
+    setEmailStatus("submitted");
+  };
   const price = market === "uk" ? "£3" : "$5";
 
   return (
@@ -25,6 +37,7 @@ const Index = () => {
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm">
             <a href="#how-it-works" className="text-foreground/70 hover:text-foreground">How It Works</a>
+            <Link to="/blog" className="text-foreground/70 hover:text-foreground">Blog</Link>
             <Link to="/examples" className="text-foreground/70 hover:text-foreground">Examples</Link>
             <Link to="/about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link to="/contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
@@ -273,6 +286,43 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Email Capture */}
+      <section className="bg-muted/40 py-16">
+        <div className="container mx-auto px-4 max-w-2xl text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <Mail className="h-10 w-10 text-accent mx-auto mb-4" />
+            <h2 className="text-2xl font-heading font-bold text-foreground mb-2">
+              Free Consumer Rights Tips
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Get a free complaint letter template + weekly UK consumer rights guides. No spam, unsubscribe anytime.
+            </p>
+            {emailStatus === "submitted" ? (
+              <p className="text-accent font-medium">You're in. Check your inbox for your free template.</p>
+            ) : (
+              <form onSubmit={handleEmailCapture} className="flex flex-col sm:flex-row gap-3 justify-center">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="flex-1 max-w-sm px-4 py-3 rounded-lg border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-accent"
+                />
+                <Button type="submit" variant="cta" size="lg">
+                  Send Me the Template
+                </Button>
+              </form>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border py-12 bg-secondary">
         <div className="container mx-auto px-4">
@@ -293,6 +343,7 @@ const Index = () => {
               <div className="space-y-2 text-sm">
                 <div><Link to="/" className="text-muted-foreground hover:text-foreground">Home</Link></div>
                 <div><a href="#how-it-works" className="text-muted-foreground hover:text-foreground">How It Works</a></div>
+                <div><Link to="/blog" className="text-muted-foreground hover:text-foreground">Blog</Link></div>
                 <div><Link to="/examples" className="text-muted-foreground hover:text-foreground">Examples</Link></div>
                 <div><Link to="/about" className="text-muted-foreground hover:text-foreground">About</Link></div>
               </div>
